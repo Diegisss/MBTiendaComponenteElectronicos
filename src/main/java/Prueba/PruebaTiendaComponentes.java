@@ -1,13 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package Prueba;
 //dado a que ocupare todos las clases de Metodos de Busqueda importo todos
 import MetodosBusqueda.*;
 import Clases.Producto;
 import java.util.ArrayList;
+import java.util.HashMap; //solo veremos la magia en la opcion de probar metodos de busqueda
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -242,45 +240,50 @@ public class PruebaTiendaComponentes {
         else JOptionPane.showMessageDialog(null, "NO SE ENCONTRO EL PRODUCTO");
     }
     
-    //este es el mas importante, incompleto por ahora
+    //este es el mas importante
     public static void probarMetodosBusqueda(){
-        int cantidad = 200000; 
+        int cantidad = 900000; 
         int repeticiones = 1000; // Esto lo implemento para las repeticiones y promediar el tiempo, ademas eliminar el ruido
         String skuBuscado = "TEST-" + (cantidad - 1); // Buscaremos el ÚLTIMO si hablamos del peor caso
 
         List<Producto> lista = new ArrayList<>();
         HashProducto tablahash = new HashProducto(); 
-
+        
+        //vamos a ver la diferencia entre mi implementacion y la de hashMap
+        Map<String, Producto> mapa = new HashMap<>();
+        
         for (int i = 0; i < cantidad; i++) {
             String sku = "TEST-" + i;
             Producto p = new Producto(sku, "Generico " + i, "Resistencia", 10.0, 100);
             
             lista.add(p);           
-            tablahash.agregarProductos(p); 
+            tablahash.agregarProductos(p);
+            //aqui nomas llenamos el hashmap
+            mapa.put(sku, p);
         }
 
         //se implemento el ordenamiento de quicksort muejjeeeee
-        MetodosBusqueda.QuickSort miOrdenador = new MetodosBusqueda.QuickSort();
-        miOrdenador.ordenar(lista);
+        MetodosBusqueda.QuickSort pc = new MetodosBusqueda.QuickSort();
+        pc.ordenar(lista);
 
 
         //comienza busqueda secuencial
-        BusquedaSecuencial buscadorSec = new BusquedaSecuencial();
+        BusquedaSecuencial Sec = new BusquedaSecuencial();
         long inicioSec = System.nanoTime();
         for (int k = 0; k < repeticiones; k++) {
-            buscadorSec.buscar(lista, skuBuscado);
+            Sec.buscar(lista, skuBuscado);
         }
         long finSec = System.nanoTime();
-        long tiempoSecPromedio = (finSec - inicioSec) / repeticiones;
+        long tiempoSec = (finSec - inicioSec) / repeticiones;
 
         //comienza busqueda binaria
-        BusquedaBinaria buscadorBin = new BusquedaBinaria();
+        BusquedaBinaria Bin = new BusquedaBinaria();
         long inicioBin = System.nanoTime();
         for (int k = 0; k < repeticiones; k++) {
-            buscadorBin.buscar(lista, skuBuscado);
+            Bin.buscar(lista, skuBuscado);
         }
         long finBin = System.nanoTime();
-        long tiempoBinPromedio = (finBin - inicioBin) / repeticiones;
+        long tiempoBin = (finBin - inicioBin) / repeticiones;
 
         //comienza hash
         long inicioHash = System.nanoTime();
@@ -288,7 +291,14 @@ public class PruebaTiendaComponentes {
             tablahash.buscarProducto(skuBuscado);
         }
         long finHash = System.nanoTime();
-        long tiempoHashPromedio = (finHash - inicioHash) / repeticiones;
+        long tiempoHash = (finHash - inicioHash) / repeticiones;
+        
+        long inicioHashMap = System.nanoTime();
+        for (int k = 0; k < repeticiones; k++){
+            mapa.get(skuBuscado);
+        }
+        long finHashMap = System.nanoTime();
+        long tiempoHashMap = (finHashMap - inicioHashMap) / repeticiones;
 
         String cad = "--- RENDIMIENTO ---\n";
         cad += "Datos procesados: " + cantidad + " productos.\n";
@@ -297,17 +307,22 @@ public class PruebaTiendaComponentes {
         
         cad += "--- TIEMPO PROMEDIO ---\n";
         cad += "1. BÚSQUEDA SECUENCIAL:\n"; 
-        cad += "   Tiempo: " + tiempoSecPromedio + " ns\n"; 
+        cad += "   Tiempo: " + tiempoSec + " ns\n"; 
         cad += "   Complejidad: O(n)\n\n";
         
         cad += "2. BÚSQUEDA BINARIA:\n"; 
-        cad += "   Tiempo: " + tiempoBinPromedio + " ns\n"; 
+        cad += "   Tiempo: " + tiempoBin + " ns\n"; 
         cad += "   Complejidad: O(log n)\n\n";
         
         cad += "3. BÚSQUEDA HASH:\n"; 
-        cad += "   Tiempo: " + tiempoHashPromedio + " ns\n"; 
+        cad += "   Tiempo: " + tiempoHash + " ns\n"; 
+        cad += "   Complejidad: O(1)\n\n";
+        
+        //esta es muy god :O
+        cad += "4. BÚSQUEDA HASHMAP (Java Nativo):\n";
+        cad += "   Tiempo: " + tiempoHashMap + " ns\n"; 
         cad += "   Complejidad: O(1)\n";
-        cad += "-----------------------------------------------------\n";
+        cad += "-------------------------------------------------------------\n";
         
         JTextArea insertar = new JTextArea(cad);
         insertar.setRows(40);
