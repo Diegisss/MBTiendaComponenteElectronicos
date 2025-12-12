@@ -3,11 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 package Prueba;
-
-import MetodosBusqueda.HashProducto;
-import MetodosBusqueda.BusquedaBinaria;
-import MetodosBusqueda.BusquedaSecuencial;
+//dado a que ocupare todos las clases de Metodos de Busqueda importo todos
+import MetodosBusqueda.*;
 import Clases.Producto;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -26,7 +26,7 @@ public class PruebaTiendaComponentes {
     public static void main(String[] args) {
         String[] op = {"1. AGREGAR COMPONENTE", "2. ELIMINAR COMPONENTE", "3. ACTUALIZAR COMPONENTE", "4. VER POR TIPO",
             "5. VER TODOS LOS COMPONENTES", "6. BUSCAR POR SKU", "7. PROBAR METODOS DE BUSQUEDA",
-            "7. SALIR"};
+            "8. SALIR"};
         
         String opcion;
         do{
@@ -244,6 +244,79 @@ public class PruebaTiendaComponentes {
     
     //este es el mas importante, incompleto por ahora
     public static void probarMetodosBusqueda(){
-        JOptionPane.showMessageDialog(null, "FALTA IMPLEMENTARLO");
+        int cantidad = 200000; 
+        int repeticiones = 1000; // Esto lo implemento para las repeticiones y promediar el tiempo, ademas eliminar el ruido
+        String skuBuscado = "TEST-" + (cantidad - 1); // Buscaremos el ÚLTIMO si hablamos del peor caso
+
+        List<Producto> lista = new ArrayList<>();
+        HashProducto tablahash = new HashProducto(); 
+
+        for (int i = 0; i < cantidad; i++) {
+            String sku = "TEST-" + i;
+            Producto p = new Producto(sku, "Generico " + i, "Resistencia", 10.0, 100);
+            
+            lista.add(p);           
+            tablahash.agregarProductos(p); 
+        }
+
+        //se implemento el ordenamiento de quicksort muejjeeeee
+        MetodosBusqueda.QuickSort miOrdenador = new MetodosBusqueda.QuickSort();
+        miOrdenador.ordenar(lista);
+
+
+        //comienza busqueda secuencial
+        BusquedaSecuencial buscadorSec = new BusquedaSecuencial();
+        long inicioSec = System.nanoTime();
+        for (int k = 0; k < repeticiones; k++) {
+            buscadorSec.buscar(lista, skuBuscado);
+        }
+        long finSec = System.nanoTime();
+        long tiempoSecPromedio = (finSec - inicioSec) / repeticiones;
+
+        //comienza busqueda binaria
+        BusquedaBinaria buscadorBin = new BusquedaBinaria();
+        long inicioBin = System.nanoTime();
+        for (int k = 0; k < repeticiones; k++) {
+            buscadorBin.buscar(lista, skuBuscado);
+        }
+        long finBin = System.nanoTime();
+        long tiempoBinPromedio = (finBin - inicioBin) / repeticiones;
+
+        //comienza hash
+        long inicioHash = System.nanoTime();
+        for (int k = 0; k < repeticiones; k++) {
+            tablahash.buscarProducto(skuBuscado);
+        }
+        long finHash = System.nanoTime();
+        long tiempoHashPromedio = (finHash - inicioHash) / repeticiones;
+
+        String cad = "--- RENDIMIENTO ---\n";
+        cad += "Datos procesados: " + cantidad + " productos.\n";
+        cad += "Búsquedas repetidas para promedio: " + repeticiones + " veces.\n";
+        cad += "Objetivo: Buscar SKU '" + skuBuscado + "\n\n";
+        
+        cad += "--- TIEMPO PROMEDIO ---\n";
+        cad += "1. BÚSQUEDA SECUENCIAL:\n"; 
+        cad += "   Tiempo: " + tiempoSecPromedio + " ns\n"; 
+        cad += "   Complejidad: O(n)\n\n";
+        
+        cad += "2. BÚSQUEDA BINARIA:\n"; 
+        cad += "   Tiempo: " + tiempoBinPromedio + " ns\n"; 
+        cad += "   Complejidad: O(log n)\n\n";
+        
+        cad += "3. BÚSQUEDA HASH:\n"; 
+        cad += "   Tiempo: " + tiempoHashPromedio + " ns\n"; 
+        cad += "   Complejidad: O(1)\n";
+        cad += "-----------------------------------------------------\n";
+        
+        JTextArea insertar = new JTextArea(cad);
+        insertar.setRows(40);
+        insertar.setColumns(70);
+        insertar.setEditable(false);
+        JScrollPane scroll = new JScrollPane(insertar);
+        
+        scroll.setPreferredSize(new java.awt.Dimension(290, 300));
+        
+        JOptionPane.showMessageDialog(null, scroll, "RESULTADO DE RENDIMIENTO", JOptionPane.INFORMATION_MESSAGE);
     }
 }
