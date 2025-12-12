@@ -15,7 +15,7 @@ public class HashProducto {
         cantidad = new int [5];
         
         for (int i = 0; i < 5; i++) {
-            maximo[i] = 1000000; //usare un tamaño fijo
+            maximo[i] = 3000000; //usare un tamaño fijo
             tablita[i] = new Producto[maximo[i]];
             cantidad[i] = 0;
         }
