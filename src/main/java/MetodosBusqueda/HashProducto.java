@@ -15,7 +15,7 @@ public class HashProducto {
         cantidad = new int [5];
         
         for (int i = 0; i < 5; i++) {
-            maximo[i] = 90000; //usare un tamaño fijo
+            maximo[i] = 1000000; //usare un tamaño fijo
             tablita[i] = new Producto[maximo[i]];
             cantidad[i] = 0;
         }
@@ -139,6 +139,34 @@ public class HashProducto {
             }
         }
         return resultado;
+    }
+    
+    public void actualizarProducto(String sku, String tipo, String nuevoNombre, double nuevoPrecio, int nuevasUnidades) {
+        int indice = Indice(tipo);
+        if (indice == -1) throw new NoSuchElementException("TIPO NO VALIDO");
+
+        int pos = hash(sku) % maximo[indice];
+        int inicio = pos;
+        Producto[] tablitaActual = tablita[indice];
+        int capacidad = maximo[indice];
+        
+        while (tablitaActual[pos] != null) {
+            //si esta condicion se llega a cumplir, entonces actualizamos
+            if (tablitaActual[pos].getSku().equals(sku)) {
+                
+                tablitaActual[pos].setNombre(nuevoNombre);
+                tablitaActual[pos].setPrecio(nuevoPrecio);
+                tablitaActual[pos].setUnidades(nuevasUnidades);
+                return; 
+            }
+            
+            // Seguimos buscando por si hubo colisión :)
+            pos = (pos + 1) % capacidad;
+            if (pos == inicio) break;
+        }
+        
+        // Si llegamos aquí, es que no existe :(
+        throw new NoSuchElementException("NO SE ENCONTRO EL PRODUCTO CON SKU: " + sku);
     }
     
     //funcion implementada de hash
