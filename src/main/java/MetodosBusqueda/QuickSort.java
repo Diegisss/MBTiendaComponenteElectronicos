@@ -39,27 +39,34 @@ public class QuickSort {
 
     // mi metodo para separar
     private int Separar(List<Producto> v, int l, int h) {
-        // aqui el pivote ahora es el SKU del último producto
-        String pivote = v.get(h).getSku();
+        int medio = l + (h - l) / 2;
 
-        Producto temporal;
-        int i = l - 1;
+        // Esto evita el "peor caso" de QuickSort en listas ordenadas
+        Producto tempPivote = v.get(medio);
+        v.set(medio, v.get(h));
+        v.set(h, tempPivote);
+
+        // el pivote ya no es el del final, sino el del medio.
+        String pivote = v.get(h).getSku(); 
+        
+        Producto temporal; 
+        int i = l - 1; 
 
         for (int j = l; j < h; j++) {
-            d++;
+            d++; 
             if (v.get(j).getSku().compareTo(pivote) <= 0) {
                 i = i + 1;
-                //aplicamos permutaciones
+                // aplicamos permutaciones
                 temporal = v.get(i);
                 v.set(i, v.get(j));
                 v.set(j, temporal);
             }
         }
-        // colocamos nuestro pivote en su posicion correcta
+        
         temporal = v.get(i + 1);
         v.set(i + 1, v.get(h));
         v.set(h, temporal);
-
-        return i + 1;
+        
+        return i + 1; 
     }
 }
